@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arsip Pegawai Instalasi Dialisis</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+:root {
+  --biru-tua: #0c2d5c;
+  --biru-tua-2: #1e3a8a;
+  --biru-sedang: #2563eb;
+  --biru-muda: #60a5fa;
+  --biru-muda-2: #93c5fd;
+  --biru-sangat-muda: #dbeafe;
+  --biru-bg: #eff6ff;
+}
+
+* { font-family: 'Plus Jakarta Sans', sans-serif; }
+.font-display { font-family: 'Outfit', sans-serif; }
+
+body {
+  background: linear-gradient(135deg, #f0f7ff 0%, #dbeafe 50%, #bfdbfe 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.bg-silhouette {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.bg-silhouette svg { position: absolute; bottom: -20px; }
+.bg-silhouette .tugu-left { left: -2%; width: 380px; opacity: 0.09; }
+.bg-silhouette .tugu-right { right: -2%; width: 480px; opacity: 0.07; }
+.bg-silhouette .tugu-center { left: 50%; transform: translateX(-50%); width: 320px; opacity: 0.04; }
+
+.pattern-grid {
+  background-image: 
+    linear-gradient(rgba(30,58,138,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30,58,138,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 20px 40px -20px rgba(12, 45, 92, 0.25), 0 1px 3px rgba(12, 45, 92, 0.08);
+}
+
+.header-gradient {
+  background: linear-gradient(135deg, #0c2d5c 0%, #1e3a8a 50%, #2563eb 100%);
+  position: relative;
+  overflow: hidden;
+}
+.header-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(96, 165, 250, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(147, 197, 253, 0.2) 0%, transparent 50%);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37, 99, 235, 0.5); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  color: #1e3a8a;
+  border: 1px solid #bfdbfe;
+  transition: all 0.3s ease;
+}
+.btn-secondary:hover { background: #eff6ff; border-color: #60a5fa; transform: translateY(-1px); }
+.btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.input-field {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #dbeafe;
+  transition: all 0.3s ease;
+}
+.input-field:focus {
+  border-color: #2563eb;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  outline: none;
+}
+.input-field:disabled { background: #f3f4f6; cursor: not-allowed; }
+
+.table-row {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #eff6ff;
+}
+.table-row:hover {
+  background: linear-gradient(90deg, rgba(219, 234, 254, 0.6) 0%, rgba(219, 234, 254, 0.1) 100%);
+}
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 45, 92, 0.55);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-content {
+  transform: scale(0.9) translateY(10px);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
+
+.stat-card { transition: all 0.3s ease; }
+.stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -10px rgba(12, 45, 92, 0.3); }
+
+.badge {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e3a8a;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.float-animation { animation: float 3s ease-in-out infinite; }
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+.pulse-dot { animation: pulse-ring 2s ease-in-out infinite; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spinner { animation: spin 0.8s linear infinite; }
+
+.accent-line { background: linear-gradient(90deg, #60a5fa 0%, #2563eb 50%, #60a5fa 100%); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #eff6ff; }
+::-webkit-scrollbar-thumb { 
+  background: linear-gradient(180deg, #60a5fa 0%, #1e3a8a 100%);
+  border-radius: 10px;
+  border: 2px solid #eff6ff;
+}
+::-webkit-scrollbar-thumb:hover { background: #1e3a8a; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+
+.glow-on-hover { position: relative; overflow: hidden; }
+.glow-on-hover::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.glow-on-hover:hover::after { opacity: 1; }
+
+@media (max-width: 768px) {
+  .toast { right: 15px; left: 15px; bottom: 15px; }
+}
+
+.connection-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.connection-badge.online { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
+.connection-badge.offline { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+.connection-badge.loading { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+</style>
+</head>
+<body class="pattern-grid">
+
+<!-- Background Silhouette Tugu Malang -->
+<div class="bg-silhouette">
+  <svg class="tugu-left" viewBox="0 0 200 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="50" y="400" width="100" height="20" fill="#0c2d5c"/>
+    <rect x="55" y="388" width="90" height="12" fill="#0c2d5c"/>
+    <rect x="60" y="330" width="80" height="58" fill="#0c2d5c"/>
+    <rect x="65" y="320" width="70" height="10" fill="#0c2d5c"/>
+    <rect x="68" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="82" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="96" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="110" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="124" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="60" y="208" width="80" height="12" fill="#0c2d5c"/>
+    <rect x="65" y="195" width="70" height="13" fill="#0c2d5c"/>
+    <rect x="70" y="183" width="60" height="12" fill="#0c2d5c"/>
+    <polygon points="65,183 100,130 135,183" fill="#0c2d5c"/>
+    <polygon points="72,150 100,118 128,150" fill="#0c2d5c"/>
+    <polygon points="78,135 100,108 122,135" fill="#0c2d5c"/>
+    <rect x="97" y="95" width="6" height="15" fill="#0c2d5c"/>
+    <circle cx="100" cy="90" r="7" fill="#0c2d5c"/>
+    <rect x="98" y="78" width="4" height="10" fill="#0c2d5c"/>
+    <circle cx="100" cy="74" r="4" fill="#0c2d5c"/>
+  </svg>
+  
+  <svg class="tugu-center" viewBox="0 0 200 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="50" y="400" width="100" height="20" fill="#1e3a8a"/>
+    <rect x="55" y="388" width="90" height="12" fill="#1e3a8a"/>
+    <rect x="60" y="330" width="80" height="58" fill="#1e3a8a"/>
+    <rect x="65" y="320" width="70" height="10" fill="#1e3a8a"/>
+    <rect x="68" y="220" width="7" height="100" fill="#1e3a8a"/>
+    <rect x="82" y="220" width="7" height="100" fill="#1e3a8a"/>
+    <rect x="96" y="220" width="7" height="100" fill="#1e3a8a"/>
+    <rect x="110" y="220" width="7" height="100" fill="#1e3a8a"/>
+    <rect x="124" y="220" width="7" height="100" fill="#1e3a8a"/>
+    <rect x="60" y="208" width="80" height="12" fill="#1e3a8a"/>
+    <rect x="65" y="195" width="70" height="13" fill="#1e3a8a"/>
+    <rect x="70" y="183" width="60" height="12" fill="#1e3a8a"/>
+    <polygon points="65,183 100,130 135,183" fill="#1e3a8a"/>
+    <polygon points="72,150 100,118 128,150" fill="#1e3a8a"/>
+    <polygon points="78,135 100,108 122,135" fill="#1e3a8a"/>
+    <rect x="97" y="95" width="6" height="15" fill="#1e3a8a"/>
+    <circle cx="100" cy="90" r="7" fill="#1e3a8a"/>
+    <rect x="98" y="78" width="4" height="10" fill="#1e3a8a"/>
+    <circle cx="100" cy="74" r="4" fill="#1e3a8a"/>
+  </svg>
+  
+  <svg class="tugu-right" viewBox="0 0 200 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="50" y="400" width="100" height="20" fill="#0c2d5c"/>
+    <rect x="55" y="388" width="90" height="12" fill="#0c2d5c"/>
+    <rect x="60" y="330" width="80" height="58" fill="#0c2d5c"/>
+    <rect x="65" y="320" width="70" height="10" fill="#0c2d5c"/>
+    <rect x="68" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="82" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="96" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="110" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="124" y="220" width="7" height="100" fill="#0c2d5c"/>
+    <rect x="60" y="208" width="80" height="12" fill="#0c2d5c"/>
+    <rect x="65" y="195" width="70" height="13" fill="#0c2d5c"/>
+    <rect x="70" y="183" width="60" height="12" fill="#0c2d5c"/>
+    <polygon points="65,183 100,130 135,183" fill="#0c2d5c"/>
+    <polygon points="72,150 100,118 128,150" fill="#0c2d5c"/>
+    <polygon points="78,135 100,108 122,135" fill="#0c2d5c"/>
+    <rect x="97" y="95" width="6" height="15" fill="#0c2d5c"/>
+    <circle cx="100" cy="90" r="7" fill="#0c2d5c"/>
+    <rect x="98" y="78" width="4" height="10" fill="#0c2d5c"/>
+    <circle cx="100" cy="74" r="4" fill="#0c2d5c"/>
+  </svg>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="fixed inset-0 z-[200] bg-blue-900/40 backdrop-blur-sm flex items-center justify-center" style="display:none;">
+  <div class="glass-card rounded-2xl px-8 py-6 flex items-center gap-4">
+    <div class="w-8 h-8 border-3 border-blue-200 border-t-blue-700 rounded-full spinner"></div>
+    <div>
+      <p class="font-semibold text-blue-900" id="loadingText">Memproses...</p>
+      <p class="text-xs text-blue-600">Mohon tunggu sebentar</p>
+    </div>
+  </div>
+</div>
+
+<div class="relative z-10 min-h-screen">
+  
+  <!-- Header -->
+  <header class="header-gradient text-white shadow-2xl">
+    <div class="container mx-auto px-6 py-8 relative z-10">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20">
+            <i data-lucide="archive" class="w-9 h-9 text-white"></i>
+          </div>
+          <div>
+            <h1 class="font-display text-3xl md:text-4xl font-black tracking-tight leading-tight">
+              ARSIP PEGAWAI
+            </h1>
+            <p class="text-blue-100 font-medium tracking-wide text-sm md:text-base">
+              INSTALASI DIALISIS · RUMAH SAKIT KOTA MALANG
+            </p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-3 flex-wrap">
+          <div id="connectionBadge" class="connection-badge loading">
+            <span class="w-2 h-2 rounded-full bg-current pulse-dot"></span>
+            <span id="connectionText">Memuat...</span>
+          </div>
+          <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+            <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
+            <span class="text-sm font-medium">Sistem Aktif</span>
+          </div>
+          <div class="text-right hidden md:block">
+            <p class="text-xs text-blue-200">Hari Ini</p>
+            <p class="text-sm font-semibold" id="currentDate"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="h-1 accent-line"></div>
+  </header>
+  
+  <main class="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
+    
+    <!-- Stats Cards -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="stat-card glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-blue-700 uppercase tracking-wider">Total Arsip</span>
+          <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+            <i data-lucide="folder" class="w-4 h-4 text-blue-700"></i>
+          </div>
+        </div>
+        <p class="font-display text-3xl font-bold text-blue-900" id="statTotal">0</p>
+      </div>
+      
+      <div class="stat-card glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-blue-700 uppercase tracking-wider">Hari Ini</span>
+          <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+            <i data-lucide="clock" class="w-4 h-4 text-blue-700"></i>
+          </div>
+        </div>
+        <p class="font-display text-3xl font-bold text-blue-900" id="statToday">0</p>
+      </div>
+      
+      <div class="stat-card glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-blue-700 uppercase tracking-wider">Minggu Ini</span>
+          <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+            <i data-lucide="calendar-days" class="w-4 h-4 text-blue-700"></i>
+          </div>
+        </div>
+        <p class="font-display text-3xl font-bold text-blue-900" id="statWeek">0</p>
+      </div>
+      
+      <div class="stat-card glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-blue-700 uppercase tracking-wider">Bulan Ini</span>
+          <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-700"></i>
+          </div>
+        </div>
+        <p class="font-display text-3xl font-bold text-blue-900" id="statMonth">0</p>
+      </div>
+    </section>
+    
+    <!-- Form Add -->
+    <section class="glass-card rounded-2xl p-6 md:p-8 mb-8 fade-in-up">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <h2 class="font-display text-xl font-bold text-blue-900">Tambah Arsip Baru</h2>
+          <p class="text-sm text-blue-600">Data otomatis tersimpan ke Google Spreadsheet</p>
+        </div>
+      </div>
+      
+      <form id="archiveForm" class="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <div class="md:col-span-5">
+          <label class="block text-sm font-semibold text-blue-800 mb-2">
+            <span class="inline-flex items-center gap-2">
+              <i data-lucide="file-text" class="w-4 h-4"></i>
+              Nama Dokumen
+            </span>
+          </label>
+          <input type="text" id="docName" required
+            placeholder="Contoh: SK Pengangkatan Pegawai - dr. Andi"
+            class="input-field w-full px-4 py-3 rounded-xl text-gray-800 placeholder:text-blue-300" />
+        </div>
+        
+        <div class="md:col-span-3">
+          <label class="block text-sm font-semibold text-blue-800 mb-2">
+            <span class="inline-flex items-center gap-2">
+              <i data-lucide="tag" class="w-4 h-4"></i>
+              Kategori
+            </span>
+          </label>
+          <select id="docCategory" class="input-field w-full px-4 py-3 rounded-xl text-gray-800">
+            <option value="Umum">Umum</option>
+            <option value="SK Kepegawaian">SK Kepegawaian</option>
+            <option value="Sertifikasi">Sertifikasi</option>
+            <option value="Pelatihan">Pelatihan</option>
+            <option value="Evaluasi">Evaluasi</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        
+        <div class="md:col-span-4">
+          <label class="block text-sm font-semibold text-blue-800 mb-2">
+            <span class="inline-flex items-center gap-2">
+              <i data-lucide="link" class="w-4 h-4"></i>
+              Bukti Link
+            </span>
+          </label>
+          <input type="url" id="docLink" required
+            placeholder="https://drive.google.com/..."
+            class="input-field w-full px-4 py-3 rounded-xl text-gray-800 placeholder:text-blue-300" />
+        </div>
+        
+        <div class="md:col-span-12 flex flex-col sm:flex-row gap-3 mt-2">
+          <button type="submit" id="submitBtn"
+            class="btn-primary glow-on-hover px-6 py-3 rounded-xl font-semibold inline-flex items-center justify-center gap-2">
+            <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+            Tambah Arsip
+          </button>
+          <button type="reset"
+            class="btn-secondary px-6 py-3 rounded-xl font-semibold inline-flex items-center justify-center gap-2">
+            <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+            Reset Form
+          </button>
+        </div>
+      </form>
+    </section>
+    
+    <!-- Search & Filter -->
+    <section class="glass-card rounded-2xl p-5 md:p-6 mb-6">
+      <div class="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+        <div class="flex-1 relative">
+          <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-blue-400"></i>
+          <input type="text" id="searchInput" 
+            placeholder="Cari nama dokumen atau kategori..."
+            class="input-field w-full pl-12 pr-4 py-3 rounded-xl text-gray-800 placeholder:text-blue-300" />
+        </div>
+        
+        <div class="flex gap-2">
+          <select id="filterCategory" class="input-field px-4 py-3 rounded-xl text-gray-800 font-medium">
+            <option value="">Semua Kategori</option>
+            <option value="Umum">Umum</option>
+            <option value="SK Kepegawaian">SK Kepegawaian</option>
+            <option value="Sertifikasi">Sertifikasi</option>
+            <option value="Pelatihan">Pelatihan</option>
+            <option value="Evaluasi">Evaluasi</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+          
+          <select id="sortBy" class="input-field px-4 py-3 rounded-xl text-gray-800 font-medium">
+            <option value="newest">Terbaru</option>
+            <option value="oldest">Terlama</option>
+            <option value="name-asc">Nama A-Z</option>
+            <option value="name-desc">Nama Z-A</option>
+          </select>
+          
+          <button onclick="loadData()" title="Muat Ulang"
+            class="btn-secondary px-4 py-3 rounded-xl font-semibold inline-flex items-center justify-center gap-2">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Table Section -->
+    <section class="glass-card rounded-2xl overflow-hidden">
+      <div class="p-5 md:p-6 border-b border-blue-100 flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-md">
+            <i data-lucide="list" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <h2 class="font-display text-lg font-bold text-blue-900">Daftar Arsip</h2>
+            <p class="text-xs text-blue-600">Total <span id="totalCount" class="font-semibold">0</span> dokumen tersimpan</p>
+          </div>
+        </div>
+        <button onclick="exportData()"
+          class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold inline-flex items-center gap-2">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span class="hidden md:inline">Export CSV</span>
+        </button>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gradient-to-r from-blue-50 to-blue-100/50 text-blue-900 text-xs uppercase tracking-wider">
+              <th class="px-4 md:px-6 py-4 text-left font-semibold">No</th>
+              <th class="px-4 md:px-6 py-4 text-left font-semibold">Nama Dokumen</th>
+              <th class="px-4 md:px-6 py-4 text-left font-semibold hidden md:table-cell">Kategori</th>
+              <th class="px-4 md:px-6 py-4 text-left font-semibold hidden lg:table-cell">Tanggal Upload</th>
+              <th class="px-4 md:px-6 py-4 text-center font-semibold">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="archiveTableBody">
+            <tr>
+              <td colspan="5" class="text-center py-12">
+                <div class="inline-flex items-center gap-3 text-blue-600">
+                  <div class="w-5 h-5 border-2 border-blue-200 border-t-blue-700 rounded-full spinner"></div>
+                  <span class="font-medium">Memuat data dari spreadsheet...</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="emptyState" class="hidden p-12 text-center">
+        <div class="inline-block float-animation mb-4">
+          <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center">
+            <i data-lucide="inbox" class="w-12 h-12 text-blue-400"></i>
+          </div>
+        </div>
+        <h3 class="font-display text-lg font-bold text-blue-900 mb-2">Belum Ada Arsip</h3>
+        <p class="text-blue-600 text-sm max-w-md mx-auto">
+          Mulai dengan menambahkan dokumen pertama Anda menggunakan formulir di atas.
+        </p>
+      </div>
+    </section>
+    
+    <footer class="mt-12 text-center text-blue-700 text-sm pb-6">
+      <div class="inline-flex items-center gap-2 mb-2">
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+        <span class="font-semibold">Sistem Arsip Digital</span>
+      </div>
+      <p>© 2024 Instalasi Dialisis · Rumah Sakit Kota Malang</p>
+      <p class="text-xs text-blue-500 mt-1">Tersinkronisasi dengan Google Spreadsheet</p>
+    </footer>
+  </main>
+</div>
+
+<!-- Modal Edit -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-content glass-card rounded-2xl p-6 md:p-8 max-w-md w-[90%] mx-4">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-md">
+        <i data-lucide="edit-3" class="w-5 h-5 text-white"></i>
+      </div>
+      <div>
+        <h3 class="font-display text-lg font-bold text-blue-900">Edit Arsip</h3>
+        <p class="text-xs text-blue-600">Ubah informasi dokumen</p>
+      </div>
+    </div>
+    
+    <form id="editForm" class="space-y-4">
+      <input type="hidden" id="editId" />
+      
+      <div>
+        <label class="block text-sm font-semibold text-blue-800 mb-2">Nama Dokumen</label>
+        <input type="text" id="editDocName" required class="input-field w-full px-4 py-3 rounded-xl text-gray-800" />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-semibold text-blue-800 mb-2">Kategori</label>
+        <select id="editDocCategory" class="input-field w-full px-4 py-3 rounded-xl text-gray-800">
+          <option value="Umum">Umum</option>
+          <option value="SK Kepegawaian">SK Kepegawaian</option>
+          <option value="Sertifikasi">Sertifikasi</option>
+          <option value="Pelatihan">Pelatihan</option>
+          <option value="Evaluasi">Evaluasi</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-semibold text-blue-800 mb-2">Bukti Link</label>
+        <input type="url" id="editDocLink" required class="input-field w-full px-4 py-3 rounded-xl text-gray-800" />
+      </div>
+      
+      <div class="flex gap-3 pt-2">
+        <button type="submit" id="editSubmitBtn"
+          class="btn-primary flex-1 px-6 py-3 rounded-xl font-semibold inline-flex items-center justify-center gap-2">
+          <i data-lucide="save" class="w-5 h-5"></i>
+          Simpan Perubahan
+        </button>
+        <button type="button" onclick="closeEditModal()" 
+          class="btn-secondary px-6 py-3 rounded-xl font-semibold inline-flex items-center justify-center gap-2">
+          <i data-lucide="x" class="w-5 h-5"></i>
+          Batal
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Delete -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-content glass-card rounded-2xl p-6 md:p-8 max-w-md w-[90%] mx-4">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+        <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+      </div>
+      <h3 class="font-display text-lg font-bold text-blue-900">Konfirmasi Hapus</h3>
+    </div>
+    <p class="text-gray-700 mb-6">
+      Apakah Anda yakin ingin menghapus arsip 
+      <span id="deleteDocName" class="font-semibold text-blue-900"></span>?
+      Tindakan ini tidak dapat dibatalkan.
+    </p>
+    
+    <div class="flex gap-3">
+      <button onclick="confirmDelete()" id="deleteConfirmBtn"
+        class="flex-1 px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-red-500 to-red-600 text-white inline-flex items-center justify-center gap-2 hover:shadow-lg transition-all">
+        <i data-lucide="trash-2" class="w-5 h-5"></i>
+        Ya, Hapus
+      </button>
+      <button onclick="closeDeleteModal()" 
+        class="btn-secondary px-6 py-3 rounded-xl font-semibold inline-flex items-center justify-center gap-2">
+        Batal
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="glass-card rounded-xl px-5 py-4 flex items-center gap-3 min-w-[280px] shadow-2xl">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center" id="toastIcon">
+      <i data-lucide="check" class="w-5 h-5"></i>
+    </div>
+    <div class="flex-1">
+      <p class="font-semibold text-blue-900" id="toastTitle">Berhasil</p>
+      <p class="text-sm text-blue-700" id="toastMessage">Data tersimpan</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// KONFIGURASI API
+// ============================================
+// Ganti URL berikut dengan Web App URL dari Google Apps Script Anda
+// Cara dapatkan: Deploy > New Deployment > Web App > Copy URL
+const API_URL = 'https://script.google.com/macros/s/AKfycbzU3HRpXmhqIMFF6U2KuzQisNuPvq0f5gn70fu44opgWzJJ0d6Rl8Zk2O_oLQI59CMUGA/exec';
+
+// ============================================
+
+lucide.createIcons();
+
+let archives = [];
+let deleteId = null;
+let isOnline = false;
+
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  if (isNaN(date)) return '-';
+  const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function formatDateTime(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  if (isNaN(date)) return '-';
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${formatDate(dateStr)} · ${hours}:${minutes}`;
+}
+
+function updateCurrentDate() {
+  const now = new Date();
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  document.getElementById('currentDate').textContent = 
+    `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+updateCurrentDate();
+
+// ============================================
+// API CALLS
+// ============================================
+
+async function apiCall(action, payload = {}) {
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, ...payload })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+}
+
+async function apiGet() {
+  try {
+    const response = await fetch(`${API_URL}?action=read`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('API Get Error:', error);
+    throw error;
+  }
+}
+
+function setConnectionStatus(status) {
+  const badge = document.getElementById('connectionBadge');
+  const text = document.getElementById('connectionText');
+  isOnline = status === 'online';
+  
+  badge.className = 'connection-badge ' + status;
+  
+  if (status === 'online') {
+    text.textContent = 'Tersambung';
+  } else if (status === 'offline') {
+    text.textContent = 'Terputus';
+  } else {
+    text.textContent = 'Memuat...';
+  }
+}
+
+function showLoading(text = 'Memproses...') {
+  document.getElementById('loadingText').textContent = text;
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+async function loadData() {
+  setConnectionStatus('loading');
+  try {
+    const result = await apiGet();
+    
+    if (result.success) {
+      archives = result.data || [];
+      setConnectionStatus('online');
+      renderTable();
+      updateStats();
+    } else {
+      setConnectionStatus('offline');
+      showToast('Gagal Memuat', result.message || 'Terjadi kesalahan', 'error');
+    }
+  } catch (error) {
+    setConnectionStatus('offline');
+    showToast('Koneksi Gagal', 'Periksa API URL atau koneksi internet', 'error');
+    archives = [];
+    renderTable();
+    updateStats();
+  }
+}
+
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  const div = document.createElement('div');
+  div.textContent = String(text);
+  return div.innerHTML;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('archiveTableBody');
+  const emptyState = document.getElementById('emptyState');
+  
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const filterCategory = document.getElementById('filterCategory').value;
+  const sortBy = document.getElementById('sortBy').value;
+  
+  let filtered = archives.filter(a => {
+    const matchSearch = (a.name && a.name.toLowerCase().includes(searchTerm)) || 
+                        (a.category && a.category.toLowerCase().includes(searchTerm));
+    const matchCategory = !filterCategory || a.category === filterCategory;
+    return matchSearch && matchCategory;
+  });
+  
+  filtered.sort((a, b) => {
+    switch(sortBy) {
+      case 'newest': return new Date(b.date) - new Date(a.date);
+      case 'oldest': return new Date(a.date) - new Date(b.date);
+      case 'name-asc': return (a.name || '').localeCompare(b.name || '');
+      case 'name-desc': return (b.name || '').localeCompare(a.name || '');
+      default: return 0;
+    }
+  });
+  
+  document.getElementById('totalCount').textContent = filtered.length;
+  
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.classList.remove('hidden');
+    lucide.createIcons();
+    return;
+  }
+  
+  emptyState.classList.add('hidden');
+  
+  tbody.innerHTML = filtered.map((item, index) => `
+    <tr class="table-row">
+      <td class="px-4 md:px-6 py-4 text-blue-900 font-semibold">${index + 1}</td>
+      <td class="px-4 md:px-6 py-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="file-text" class="w-4 h-4 text-blue-700"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="font-semibold text-gray-800 truncate max-w-[200px] md:max-w-xs" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</p>
+            <p class="text-xs text-blue-500 md:hidden mt-1">${formatDateTime(item.date)}</p>
+          </div>
+        </div>
+      </td>
+      <td class="px-4 md:px-6 py-4 hidden md:table-cell">
+        <span class="badge px-3 py-1 rounded-full text-xs font-semibold inline-block">${escapeHtml(item.category)}</span>
+      </td>
+      <td class="px-4 md:px-6 py-4 hidden lg:table-cell">
+        <p class="text-sm text-gray-700">${formatDateTime(item.date)}</p>
+      </td>
+      <td class="px-4 md:px-6 py-4">
+        <div class="flex items-center justify-center gap-2">
+          <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" 
+             class="w-8 h-8 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors flex items-center justify-center text-blue-700" 
+             title="Buka Link">
+            <i data-lucide="external-link" class="w-4 h-4"></i>
+          </a>
+          <button onclick="openEditModal('${escapeHtml(item.id)}')" 
+                  class="w-8 h-8 rounded-lg bg-amber-100 hover:bg-amber-200 transition-colors flex items-center justify-center text-amber-700" 
+                  title="Edit">
+            <i data-lucide="edit-3" class="w-4 h-4"></i>
+          </button>
+          <button onclick="openDeleteModal('${escapeHtml(item.id)}')" 
+                  class="w-8 h-8 rounded-lg bg-red-100 hover:bg-red-200 transition-colors flex items-center justify-center text-red-700" 
+                  title="Hapus">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  
+  lucide.createIcons();
+}
+
+function updateStats() {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfWeek = startOfDay - now.getDay() * 86400000;
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  
+  document.getElementById('statTotal').textContent = archives.length;
+  document.getElementById('statToday').textContent = archives.filter(a => new Date(a.date).getTime() >= startOfDay).length;
+  document.getElementById('statWeek').textContent = archives.filter(a => new Date(a.date).getTime() >= startOfWeek).length;
+  document.getElementById('statMonth').textContent = archives.filter(a => new Date(a.date).getTime() >= startOfMonth).length;
+}
+
+function showToast(title, message, type = 'success') {
+  const toast = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMessage').textContent = message;
+  
+  const config = {
+    success: { bg: 'bg-green-100', text: 'text-green-600', icon: 'check' },
+    error: { bg: 'bg-red-100', text: 'text-red-600', icon: 'x' },
+    info: { bg: 'bg-blue-100', text: 'text-blue-600', icon: 'info' }
+  };
+  
+  const cfg = config[type];
+  icon.className = `w-9 h-9 rounded-lg flex items-center justify-center ${cfg.bg} ${cfg.text}`;
+  icon.innerHTML = `<i data-lucide="${cfg.icon}" class="w-5 h-5"></i>`;
+  
+  toast.classList.add('show');
+  lucide.createIcons();
+  
+  setTimeout(() => { toast.classList.remove('show'); }, 3500);
+}
+
+// ============================================
+// FORM HANDLERS
+// ============================================
+
+document.getElementById('archiveForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const name = document.getElementById('docName').value.trim();
+  const category = document.getElementById('docCategory').value;
+  const link = document.getElementById('docLink').value.trim();
+  
+  if (!name || !link) {
+    showToast('Gagal', 'Mohon lengkapi semua data', 'error');
+    return;
+  }
+  
+  try {
+    new URL(link);
+  } catch {
+    showToast('Format Link Salah', 'Pastikan link dimulai dengan http:// atau https://', 'error');
+    return;
+  }
+  
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = `
+    <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full spinner"></div>
+    Menyimpan...
+  `;
+  
+  showLoading('Menyimpan ke spreadsheet...');
+  
+  try {
+    const result = await apiCall('add', { name, category, link });
+    
+    if (result.success) {
+      showToast('Berhasil', 'Arsip berhasil ditambahkan ke spreadsheet', 'success');
+      this.reset();
+      await loadData();
+    } else {
+      showToast('Gagal', result.message || 'Terjadi kesalahan', 'error');
+    }
+  } catch (error) {
+    showToast('Koneksi Gagal', 'Periksa API URL atau koneksi internet', 'error');
+  } finally {
+    hideLoading();
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `
+      <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+      Tambah Arsip
+    `;
+    lucide.createIcons();
+  }
+});
+
+// Search & Filter
+document.getElementById('searchInput').addEventListener('input', renderTable);
+document.getElementById('filterCategory').addEventListener('change', renderTable);
+document.getElementById('sortBy').addEventListener('change', renderTable);
+
+// ============================================
+// EDIT
+// ============================================
+
+function openEditModal(id) {
+  const item = archives.find(a => String(a.id) === String(id));
+  if (!item) return;
+  
+  document.getElementById('editId').value = item.id;
+  document.getElementById('editDocName').value = item.name;
+  document.getElementById('editDocCategory').value = item.category;
+  document.getElementById('editDocLink').value = item.link;
+  
+  document.getElementById('editModal').classList.add('show');
+  lucide.createIcons();
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+}
+
+document.getElementById('editForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const id = document.getElementById('editId').value;
+  const name = document.getElementById('editDocName').value.trim();
+  const category = document.getElementById('editDocCategory').value;
+  const link = document.getElementById('editDocLink').value.trim();
+  
+  if (!name || !link) {
+    showToast('Gagal', 'Mohon lengkapi semua data', 'error');
+    return;
+  }
+  
+  try {
+    new URL(link);
+  } catch {
+    showToast('Format Link Salah', 'Pastikan link valid', 'error');
+    return;
+  }
+  
+  const submitBtn = document.getElementById('editSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = `
+    <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full spinner"></div>
+    Menyimpan...
+  `;
+  
+  showLoading('Memperbarui spreadsheet...');
+  
+  try {
+    const result = await apiCall('edit', { id, name, category, link });
+    
+    if (result.success) {
+      showToast('Berhasil', 'Arsip berhasil diperbarui', 'success');
+      closeEditModal();
+      await loadData();
+    } else {
+      showToast('Gagal', result.message || 'Terjadi kesalahan', 'error');
+    }
+  } catch (error) {
+    showToast('Koneksi Gagal', 'Periksa koneksi internet', 'error');
+  } finally {
+    hideLoading();
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `
+      <i data-lucide="save" class="w-5 h-5"></i>
+      Simpan Perubahan
+    `;
+    lucide.createIcons();
+  }
+});
+
+// ============================================
+// DELETE
+// ============================================
+
+function openDeleteModal(id) {
+  const item = archives.find(a => String(a.id) === String(id));
+  if (!item) return;
+  
+  deleteId = id;
+  document.getElementById('deleteDocName').textContent = item.name;
+  document.getElementById('deleteModal').classList.add('show');
+  lucide.createIcons();
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  deleteId = null;
+}
+
+async function confirmDelete() {
+  if (!deleteId) return;
+  
+  const btn = document.getElementById('deleteConfirmBtn');
+  btn.disabled = true;
+  btn.innerHTML = `
+    <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full spinner"></div>
+    Menghapus...
+  `;
+  
+  showLoading('Menghapus dari spreadsheet...');
+  
+  try {
+    const result = await apiCall('delete', { id: deleteId });
+    
+    if (result.success) {
+      showToast('Berhasil', 'Arsip telah dihapus dari spreadsheet', 'success');
+      closeDeleteModal();
+      await loadData();
+    } else {
+      showToast('Gagal', result.message || 'Terjadi kesalahan', 'error');
+    }
+  } catch (error) {
+    showToast('Koneksi Gagal', 'Periksa koneksi internet', 'error');
+  } finally {
+    hideLoading();
+    btn.disabled = false;
+    btn.innerHTML = `
+      <i data-lucide="trash-2" class="w-5 h-5"></i>
+      Ya, Hapus
+    `;
+    lucide.createIcons();
+  }
+}
+
+// Tutup modal saat klik overlay
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+
+// Esc key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeEditModal();
+    closeDeleteModal();
+  }
+});
+
+// ============================================
+// EXPORT CSV
+// ============================================
+
+function exportData() {
+  if (archives.length === 0) {
+    showToast('Kosong', 'Tidak ada data untuk diexport', 'error');
+    return;
+  }
+  
+  const headers = ['No', 'ID', 'Nama Dokumen', 'Kategori', 'Bukti Link', 'Tanggal Upload'];
+  const rows = archives.map((a, i) => [
+    i + 1,
+    `"${a.id || ''}"`,
+    `"${a.name || ''}"`,
+    `"${a.category || ''}"`,
+    `"${a.link || ''}"`,
+    `"${formatDateTime(a.date)}"`
+  ]);
+  
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `arsip_pegawai_dialisis_${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+  
+  showToast('Berhasil', `${archives.length} data telah diexport`, 'success');
+}
+
+// ============================================
+// INIT
+// ============================================
+
+// Peringatan jika API_URL belum diganti
+if (API_URL.includes('AKfycbxxxx')) {
+  const tbody = document.getElementById('archiveTableBody');
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="5" class="text-center py-8">
+        <div class="max-w-md mx-auto p-6 rounded-xl bg-amber-50 border border-amber-200">
+          <div class="inline-flex items-center gap-2 text-amber-700 font-semibold mb-2">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            Konfigurasi Diperlukan
+          </div>
+          <p class="text-sm text-amber-700 mb-3">
+            Anda belum mengatur <code class="bg-amber-100 px-1.5 py-0.5 rounded">API_URL</code> di file HTML.
+          </p>
+          <ol class="text-sm text-amber-700 list-decimal list-inside space-y-1 text-left">
+            <li>Buka Google Spreadsheet Anda</li>
+            <li>Menu Extensions → Apps Script</li>
+            <li>Tempel kode <strong>Kode.gs</strong></li>
+            <li>Jalankan fungsi <strong>setupSheet()</strong> sekali</li>
+            <li>Deploy → New Deployment → Web App</li>
+            <li>Execute as: Me · Access: Anyone</li>
+            <li>Copy URL ke <code class="bg-amber-100 px-1.5 py-0.5 rounded">API_URL</code></li>
+          </ol>
+        </div>
+      </td>
+    </tr>
+  `;
+  setConnectionStatus('offline');
+  lucide.createIcons();
+} else {
+  loadData();
+}
+</script>
+
+</body>
+</html>
