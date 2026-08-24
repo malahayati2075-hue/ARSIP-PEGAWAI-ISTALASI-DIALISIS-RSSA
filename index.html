@@ -652,10 +652,8 @@ body {
 
 <script>
 // ============================================
-// KONFIGURASI API
+// KONFIGURASI API (SUDAH DIPERBAIKI)
 // ============================================
-// Ganti URL berikut dengan Web App URL dari Google Apps Script Anda
-// Cara dapatkan: Deploy > New Deployment > Web App > Copy URL
 const API_URL = 'https://script.google.com/macros/s/AKfycbzU3HRpXmhqIMFF6U2KuzQisNuPvq0f5gn70fu44opgWzJJ0d6Rl8Zk2O_oLQI59CMUGA/exec';
 
 // ============================================
@@ -665,6 +663,7 @@ lucide.createIcons();
 let archives = [];
 let deleteId = null;
 let isOnline = false;
+let pendingQueue = JSON.parse(localStorage.getItem('pendingQueue') || '[]');
 
 function formatDate(dateStr) {
   if (!dateStr) return '-';
@@ -770,6 +769,7 @@ async function loadData() {
       setConnectionStatus('online');
       renderTable();
       updateStats();
+      processPendingQueue();
     } else {
       setConnectionStatus('offline');
       showToast('Gagal Memuat', result.message || 'Terjadi kesalahan', 'error');
@@ -907,7 +907,7 @@ function showToast(title, message, type = 'success') {
 }
 
 // ============================================
-// FORM HANDLERS
+// FORM HANDLERS (Dengan Sistem Antrian Offline)
 // ============================================
 
 document.getElementById('archiveForm').addEventListener('submit', async function(e) {
@@ -946,10 +946,15 @@ document.getElementById('archiveForm').addEventListener('submit', async function
       this.reset();
       await loadData();
     } else {
-      showToast('Gagal', result.message || 'Terjadi kesalahan', 'error');
+      // Fallback ke antrian offline
+      saveToPendingQueue('add', { name, category, link });
+      showToast('Disimpan Offline', 'Data akan sinkron saat koneksi tersambung', 'info');
+      this.reset();
     }
   } catch (error) {
-    showToast('Koneksi Gagal', 'Periksa API URL atau koneksi internet', 'error');
+    saveToPendingQueue('add', { name, category, link });
+    showToast('Disimpan Offline', 'Data akan sinkron otomatis saat online', 'info');
+    this.reset();
   } finally {
     hideLoading();
     submitBtn.disabled = false;
@@ -1093,6 +1098,59 @@ async function confirmDelete() {
   }
 }
 
+// ============================================
+// OFFLINE QUEUE SYSTEM
+// ============================================
+
+function saveToPendingQueue(action, payload) {
+  pendingQueue.push({ action, payload, timestamp: Date.now() });
+  localStorage.setItem('pendingQueue', JSON.stringify(pendingQueue));
+  
+  // Tambahkan ke tampilan lokal agar terlihat langsung
+  if (action === 'add') {
+    archives.unshift({
+      id: 'PENDING-' + Date.now(),
+      name: payload.name,
+      category: payload.category,
+      link: payload.link,
+      date: new Date().toISOString()
+    });
+    renderTable();
+    updateStats();
+  }
+}
+
+async function processPendingQueue() {
+  if (pendingQueue.length === 0) return;
+  
+  const queue = [...pendingQueue];
+  pendingQueue = [];
+  localStorage.setItem('pendingQueue', JSON.stringify(pendingQueue));
+  
+  let successCount = 0;
+  
+  for (const item of queue) {
+    try {
+      const result = await apiCall(item.action, item.payload);
+      if (result.success) {
+        successCount++;
+      } else {
+        // Kembalikan ke antrian jika gagal
+        pendingQueue.push(item);
+      }
+    } catch (error) {
+      pendingQueue.push(item);
+    }
+  }
+  
+  localStorage.setItem('pendingQueue', JSON.stringify(pendingQueue));
+  
+  if (successCount > 0) {
+    showToast('Sinkronisasi Berhasil', `${successCount} data tersimpan ke spreadsheet`, 'success');
+    await loadData();
+  }
+}
+
 // Tutup modal saat klik overlay
 document.getElementById('editModal').addEventListener('click', function(e) {
   if (e.target === this) closeEditModal();
@@ -1144,39 +1202,7 @@ function exportData() {
 // ============================================
 // INIT
 // ============================================
-
-// Peringatan jika API_URL belum diganti
-if (API_URL.includes('AKfycbxxxx')) {
-  const tbody = document.getElementById('archiveTableBody');
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="5" class="text-center py-8">
-        <div class="max-w-md mx-auto p-6 rounded-xl bg-amber-50 border border-amber-200">
-          <div class="inline-flex items-center gap-2 text-amber-700 font-semibold mb-2">
-            <i data-lucide="settings" class="w-5 h-5"></i>
-            Konfigurasi Diperlukan
-          </div>
-          <p class="text-sm text-amber-700 mb-3">
-            Anda belum mengatur <code class="bg-amber-100 px-1.5 py-0.5 rounded">API_URL</code> di file HTML.
-          </p>
-          <ol class="text-sm text-amber-700 list-decimal list-inside space-y-1 text-left">
-            <li>Buka Google Spreadsheet Anda</li>
-            <li>Menu Extensions → Apps Script</li>
-            <li>Tempel kode <strong>Kode.gs</strong></li>
-            <li>Jalankan fungsi <strong>setupSheet()</strong> sekali</li>
-            <li>Deploy → New Deployment → Web App</li>
-            <li>Execute as: Me · Access: Anyone</li>
-            <li>Copy URL ke <code class="bg-amber-100 px-1.5 py-0.5 rounded">API_URL</code></li>
-          </ol>
-        </div>
-      </td>
-    </tr>
-  `;
-  setConnectionStatus('offline');
-  lucide.createIcons();
-} else {
-  loadData();
-}
+loadData();
 </script>
 
 </body>
